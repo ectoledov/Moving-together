@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<title>Moving Together</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+:root{
+  --bg:#F5F2ED;--surface:#FDFCFA;--surface2:#EDE9E2;--border:#D8D0C4;
+  --text:#1C1814;--text-muted:#7A7168;
+  --accent:#C4622D;--teal:#2A6B6E;--amber:#D4913A;
+  --green:#3A7D44;--red:#B94040;
+  --amber-light:#FAF0DC;--teal-light:#D4ECED;--red-light:#F5DADA;
+  --erick:#2A6B6E;--matt:#C4622D;
+  --radius:12px;--shadow:0 2px 12px rgba(28,24,20,.08);--shadow-lg:0 8px 32px rgba(28,24,20,.14);
+  --nav-h:64px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:14px}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* AVATAR */
+.av{border-radius:50%;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;border:2px solid rgba(255,255,255,.25)}
+.av img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:block}
+.av.erick{background:var(--erick)}.av.matt{background:var(--matt)}
+
+/* DESKTOP */
+@media(min-width:768px){
+  .mob{display:none!important}
+  header{background:var(--text);color:#F5F2ED;padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:100}
+  .logo{font-family:'DM Serif Display',serif;font-size:20px;letter-spacing:-.3px}
+  .logo span{color:var(--accent);font-style:italic}
+  .hdr-r{display:flex;align-items:center;gap:16px}
+  .ubadge{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:500;background:rgba(255,255,255,.1);padding:5px 12px;border-radius:20px;cursor:pointer;user-select:none}
+  .ubadge:hover{background:rgba(255,255,255,.18)}
+  .addbtn{background:var(--accent);color:#fff;border:none;cursor:pointer;padding:7px 16px;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px}
+  .sdot{width:7px;height:7px;border-radius:50%;flex-shrink:0;transition:background .3s}
+  .sdot.ok{background:#4CAF50}.sdot.syncing{background:var(--amber);animation:pulse 1s infinite}
+  .sdot.error{background:var(--red)}.sdot.offline{background:#888}
+  .sync-ind{display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(255,255,255,.5);cursor:pointer}
+  nav.dnav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;display:flex;gap:4px}
+  .tab{padding:12px 18px;font-size:13px;font-weight:500;color:var(--text-muted);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s}
+  .tab.active{color:var(--text);border-bottom-color:var(--accent)}
+  main.dmain{padding:24px 28px;max-width:1400px}
+  .view{display:none}.view.active{display:block}
+  .kb-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+  .kb-hdr h2{font-family:'DM Serif Display',serif;font-size:24px;font-weight:400}
+  .fbar{display:flex;gap:8px;align-items:center}
+  .fchip{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1.5px solid var(--border);background:var(--surface);color:var(--text-muted);transition:all .18s}
+  .fchip.active{border-color:var(--text);background:var(--text);color:#fff}
+  .fchip.ef.active{border-color:var(--erick);background:var(--erick);color:#fff}
+  .fchip.mf.active{border-color:var(--matt);background:var(--matt);color:#fff}
+  .kb{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;align-items:start}
+  .kbc{background:var(--surface2);border-radius:var(--radius);padding:14px;min-height:200px}
+  .kbch{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+  .kbct{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);display:flex;align-items:center;gap:8px}
+  .cdot{width:8px;height:8px;border-radius:50%}
+  .cdot.todo{background:var(--text-muted)}.cdot.doing{background:var(--amber)}.cdot.done{background:var(--green)}
+  .ccount{font-family:'DM Mono',monospace;font-size:11px;background:var(--border);padding:1px 7px;border-radius:10px;color:var(--text-muted)}
+  .tcard{background:var(--surface);border-radius:8px;padding:12px 14px;margin-bottom:10px;border:1px solid var(--border);cursor:pointer;transition:box-shadow .18s,transform .15s}
+  .tcard:hover{box-shadow:var(--shadow);transform:translateY(-1px)}
+  .tcard.done{opacity:.65}
+  .tcard.done .ttitle{text-decoration:line-through;color:var(--text-muted)}
+  .ttop{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px}
+  .ttitle{font-size:13px;font-weight:500;line-height:1.4;flex:1}
+  .pbadge{font-size:10px;font-weight:600;letter-spacing:.06em;padding:2px 7px;border-radius:4px;flex-shrink:0;text-transform:uppercase}
+  .pbadge.high{background:var(--red-light);color:var(--red)}
+  .pbadge.medium{background:var(--amber-light);color:var(--amber)}
+  .pbadge.low{background:var(--teal-light);color:var(--teal)}
+  .tmeta{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .tass{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-muted)}
+  .tdue{font-family:'DM Mono',monospace;font-size:10px;color:var(--text-muted)}
+  .tdue.overdue{color:var(--red);font-weight:500}.tdue.soon{color:var(--amber);font-weight:500}
+  .tfoot{display:flex;align-items:center;gap:8px;margin-top:8px}
+  .tcat{font-size:10px;padding:2px 8px;border-radius:10px;background:var(--surface2);color:var(--text-muted);font-weight:500}
+  .mbtns{display:flex;gap:4px;margin-top:10px}
+  .mbtn{flex:1;padding:4px 6px;font-size:10px;font-family:'DM Sans',sans-serif;font-weight:500;border:1px solid var(--border);border-radius:4px;background:var(--surface2);color:var(--text-muted);cursor:pointer;transition:all .15s}
+  .mbtn:hover{background:var(--text);color:#fff;border-color:var(--text)}
+  .mbtn:disabled{opacity:.3;cursor:default}
+  .mbtn:disabled:hover{background:var(--surface2);color:var(--text-muted);border-color:var(--border)}
+  .ecol{text-align:center;padding:30px 16px;color:var(--text-muted);font-size:12px;font-style:italic}
+  .tl-hdr{margin-bottom:24px}.tl-hdr h2{font-family:'DM Serif Display',serif;font-size:24px;font-weight:400;margin-bottom:6px}
+  .tlwrap{overflow-x:auto;padding-bottom:16px}
+  .tlgrid{min-width:900px;position:relative}
+  .tlmonths{display:flex;border-bottom:1px solid var(--border)}
+  .tlmon{flex:1;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted);padding:8px 10px;border-right:1px solid var(--border);text-align:center;background:var(--surface)}
+  .tl-today{position:absolute;top:37px;bottom:0;width:2px;background:var(--accent);opacity:.6;z-index:2;pointer-events:none}
+  .tl-todaylbl{position:absolute;top:18px;transform:translateX(-50%);font-size:9px;font-weight:700;color:var(--accent);letter-spacing:.08em;z-index:3}
+  .tlrows{position:relative}
+  .tlrow{display:flex;align-items:center;border-bottom:1px solid var(--border);min-height:52px;background:var(--surface)}
+  .tlrow:nth-child(even){background:var(--surface2)}
+  .tlrlbl{width:180px;flex-shrink:0;padding:8px 14px;font-size:12px;font-weight:500;border-right:1px solid var(--border);display:flex;align-items:center;gap:7px}
+  .tlrbar{flex:1;position:relative;height:52px}
+  .tlbar{position:absolute;top:50%;transform:translateY(-50%);height:28px;border-radius:5px;display:flex;align-items:center;padding:0 10px;font-size:11px;font-weight:500;color:#fff;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .eb{background:var(--erick)}.mb{background:var(--matt)}.bb{background:var(--amber)}
+  .donebar{opacity:.45}
+  .tlnone{padding:40px;text-align:center;color:var(--text-muted);font-size:13px;font-style:italic}
+  .dh{margin-bottom:24px}.dh h2{font-family:'DM Serif Display',serif;font-size:24px;font-weight:400;margin-bottom:6px}
+  .sgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
+  .sc{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px}
+  .slbl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);margin-bottom:8px}
+  .sval{font-family:'DM Serif Display',serif;font-size:36px;line-height:1}
+  .ssub{font-size:12px;color:var(--text-muted);margin-top:4px}
+  .pbwrap{height:6px;background:var(--border);border-radius:3px;margin-top:10px;overflow:hidden}
+  .pbfill{height:100%;border-radius:3px;background:var(--green);transition:width .5s}
+  .dbot{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  .dpanel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
+  .dptitle{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);margin-bottom:16px}
+  .prow{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+  .pname{font-size:13px;font-weight:500;flex:0 0 80px}
+  .pbw{flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden}
+  .pb{height:100%;border-radius:4px;transition:width .5s}
+  .pb.erick{background:var(--erick)}.pb.matt{background:var(--matt)}
+  .pcnt{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-muted);flex:0 0 60px;text-align:right}
+  .uitem{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);cursor:pointer}
+  .uitem:last-child{border-bottom:none}
+  .udate{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-muted);flex:0 0 70px;padding-top:1px}
+  .udate.overdue{color:var(--red)}.udate.soon{color:var(--amber)}
+  .utitle{font-size:12px;font-weight:500}.uwho{margin-top:2px;font-size:11px;color:var(--text-muted)}
+  .estate{color:var(--text-muted);font-size:12px;font-style:italic;padding:12px 0}
+  .sban{background:#FFF8E8;border:1.5px solid var(--amber);border-radius:10px;padding:16px 20px;margin:20px 28px 0;display:flex;align-items:flex-start;gap:14px}
+  .sban.hidden{display:none}
+  .sban h3{font-size:14px;font-weight:600;margin-bottom:4px}
+  .sban p{font-size:12px;color:var(--text-muted);line-height:1.5;margin-bottom:10px}
+  .sinrow{display:flex;gap:8px}
+  .sinrow input{flex:1;padding:7px 11px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;font-family:'DM Sans',sans-serif;outline:none}
+  .sinrow input:focus{border-color:var(--teal)}
+  .bsetup{padding:7px 14px;background:var(--teal);color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}
+  .boffline{padding:7px 14px;background:none;color:var(--text-muted);border:1.5px solid var(--border);border-radius:6px;font-size:12px;cursor:pointer;white-space:nowrap}
+}
+
+/* MOBILE */
+@media(max-width:767px){
+  .dsk{display:none!important}
+  .mob-hdr{background:var(--text);color:#F5F2ED;padding:0 16px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+  .mob-logo{font-family:'DM Serif Display',serif;font-size:18px}
+  .mob-logo span{color:var(--accent);font-style:italic}
+  .muserbtn{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.12);border:none;border-radius:20px;padding:4px 10px 4px 4px;color:#fff;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500}
+  .msdot{width:8px;height:8px;border-radius:50%;cursor:pointer;flex-shrink:0}
+  .msdot.ok{background:#4CAF50}.msdot.syncing{background:var(--amber);animation:pulse 1s infinite}
+  .msdot.error{background:var(--red)}.msdot.offline{background:#666}
+  .msetup{background:#FFF8E8;border-bottom:2px solid var(--amber);padding:14px 16px}
+  .msetup.hidden{display:none}
+  .msetup h3{font-size:13px;font-weight:600;margin-bottom:4px}
+  .msetup p{font-size:12px;color:var(--text-muted);line-height:1.4;margin-bottom:10px}
+  .msetup input{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;margin-bottom:8px;background:var(--surface)}
+  .msetup-btns{display:flex;gap:8px}
+  .msetup-btns button{flex:1;padding:10px;border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif;font-weight:600;cursor:pointer;border:none}
+  .bcon{background:var(--teal);color:#fff}
+  .bskip{background:var(--surface2);color:var(--text-muted);border:1.5px solid var(--border)!important}
+  .mfilters{display:flex;gap:8px;overflow-x:auto;padding:10px 16px;background:var(--surface);border-bottom:1px solid var(--border);scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .mfilters::-webkit-scrollbar{display:none}
+  .mchip{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:500;border:1.5px solid var(--border);background:var(--surface);color:var(--text-muted);white-space:nowrap;cursor:pointer;flex-shrink:0}
+  .mchip.active{border-color:var(--text);background:var(--text);color:#fff}
+  .mchip.ef.active{border-color:var(--erick);background:var(--erick);color:#fff}
+  .mchip.mf.active{border-color:var(--matt);background:var(--matt);color:#fff}
+  .mcontent{padding-bottom:calc(var(--nav-h) + 8px)}
+  .mview{display:none}.mview.active{display:block}
+  .mfab{position:fixed;bottom:calc(var(--nav-h)+16px);right:16px;width:54px;height:54px;border-radius:50%;background:var(--accent);color:#fff;border:none;font-size:28px;cursor:pointer;z-index:90;box-shadow:0 4px 16px rgba(196,98,45,.45);display:flex;align-items:center;justify-content:center}
+  .mfab:active{transform:scale(.93)}
+  .mnav{position:fixed;bottom:0;left:0;right:0;height:var(--nav-h);background:var(--surface);border-top:1px solid var(--border);display:flex;z-index:100;box-shadow:0 -4px 16px rgba(28,24,20,.08)}
+  .mnavbtn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:none;background:none;color:var(--text-muted);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:10px;font-weight:500}
+  .mnavbtn.active{color:var(--accent)}
+  .mnavico{font-size:22px;line-height:1}
+  .msec-hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 8px}
+  .msec-title{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);display:flex;align-items:center;gap:7px}
+  .msec-cnt{font-family:'DM Mono',monospace;font-size:11px;background:var(--border);padding:1px 8px;border-radius:10px;color:var(--text-muted)}
+  .mdot{width:8px;height:8px;border-radius:50%}
+  .mdot.todo{background:var(--text-muted)}.mdot.doing{background:var(--amber)}.mdot.done{background:var(--green)}
+  .mcard{background:var(--surface);border-radius:12px;margin:0 16px 10px;padding:16px;border:1px solid var(--border);box-shadow:0 1px 4px rgba(28,24,20,.06);cursor:pointer}
+  .mcard.done{opacity:.6}
+  .mcard-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px}
+  .mcard-title{font-size:15px;font-weight:500;line-height:1.35;flex:1}
+  .mcard.done .mcard-title{text-decoration:line-through;color:var(--text-muted)}
+  .mbadge{font-size:10px;font-weight:700;letter-spacing:.06em;padding:3px 8px;border-radius:5px;text-transform:uppercase;flex-shrink:0;margin-top:2px}
+  .mbadge.high{background:var(--red-light);color:var(--red)}
+  .mbadge.medium{background:var(--amber-light);color:var(--amber)}
+  .mbadge.low{background:var(--teal-light);color:var(--teal)}
+  .mcard-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+  .mass{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted)}
+  .mdue{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-muted)}
+  .mdue.overdue{color:var(--red);font-weight:600}.mdue.soon{color:var(--amber);font-weight:600}
+  .mcard-tags{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+  .mtag{font-size:11px;padding:3px 10px;border-radius:10px;background:var(--surface2);color:var(--text-muted);font-weight:500}
+  .mcard-actions{display:flex;gap:8px}
+  .mabtn{flex:1;padding:11px;border-radius:8px;font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;border:1.5px solid var(--border);background:var(--surface2);color:var(--text-muted);cursor:pointer}
+  .mabtn:active{transform:scale(.97)}
+  .mabtn.teal{background:var(--teal);border-color:var(--teal);color:#fff}
+  .mabtn.green{background:var(--green);border-color:var(--green);color:#fff}
+  .mempty{text-align:center;padding:20px 16px;color:var(--text-muted);font-size:13px;font-style:italic}
+  .mtl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;padding:0 0 16px}
+  .mtl-grid{min-width:680px;position:relative}
+  .mtl-months{display:flex;border-bottom:1px solid var(--border)}
+  .mtl-mon{flex:1;font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--text-muted);padding:6px 8px;border-right:1px solid var(--border);text-align:center;background:var(--surface)}
+  .mtl-rows{position:relative}
+  .mtl-row{display:flex;align-items:center;border-bottom:1px solid var(--border);min-height:46px;background:var(--surface)}
+  .mtl-row:nth-child(even){background:var(--surface2)}
+  .mtl-lbl{width:110px;flex-shrink:0;padding:6px 8px;font-size:11px;border-right:1px solid var(--border);display:flex;align-items:center;gap:4px;overflow:hidden}
+  .mtl-lbl span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500}
+  .mtl-bar-area{flex:1;position:relative;height:46px}
+  .mtl-bar{position:absolute;top:50%;transform:translateY(-50%);height:24px;border-radius:5px;display:flex;align-items:center;padding:0 8px;font-size:10px;font-weight:500;color:#fff;white-space:nowrap;overflow:hidden}
+  .mtl-today{position:absolute;top:0;bottom:0;width:2px;background:var(--accent);opacity:.7;z-index:2;pointer-events:none}
+  .mstats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+  .mstat{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px}
+  .mstat-lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);margin-bottom:6px}
+  .mstat-val{font-family:'DM Serif Display',serif;font-size:32px;line-height:1}
+  .mstat-sub{font-size:11px;color:var(--text-muted);margin-top:3px}
+  .mstat-pb{height:5px;background:var(--border);border-radius:3px;margin-top:8px;overflow:hidden}
+  .mstat-pbf{height:100%;border-radius:3px;background:var(--green)}
+  .mpanel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px}
+  .mpanel-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);margin-bottom:14px}
+  .mprow{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+  .mpname{font-size:13px;font-weight:500;flex:0 0 70px}
+  .mpbw{flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden}
+  .mpb{height:100%;border-radius:4px}
+  .mpb.erick{background:var(--erick)}.mpb.matt{background:var(--matt)}
+  .mpcnt{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-muted);flex:0 0 50px;text-align:right}
+  .muitem{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer}
+  .muitem:last-child{border-bottom:none}
+  .mudate{font-family:'DM Mono',monospace;font-size:11px;flex:0 0 65px;padding-top:1px}
+  .mudate.overdue{color:var(--red)}.mudate.soon{color:var(--amber)}
+  .mutitle{font-size:13px;font-weight:500}.muwho{font-size:11px;color:var(--text-muted);margin-top:2px}
+  .modal-overlay{align-items:flex-end}
+  .modal{border-radius:20px 20px 0 0;padding:20px 20px 36px;max-height:92vh;width:100%}
+  .modal-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 18px}
+  .form-row input,.form-row select,.form-row textarea{font-size:16px;padding:12px;border-radius:8px}
+  .modal-actions{flex-direction:column-reverse}
+  .modal-actions button{width:100%;padding:14px;font-size:15px;border-radius:10px}
+  .btn-danger{margin-right:0}
+  .toast{bottom:calc(var(--nav-h)+12px)}
+}
+@media(min-width:768px){
+  .mob,.mob-hdr,.msetup,.mfilters,.mcontent,.mfab,.mnav{display:none!important}
+  .modal-overlay{align-items:center}
+  .modal{border-radius:14px;padding:28px;max-width:520px;width:520px;max-height:90vh}
+  .modal-handle{display:none}
+  .form-row input,.form-row select,.form-row textarea{font-size:13px;padding:9px 12px;border-radius:6px}
+  .toast{bottom:28px;left:auto;right:28px;transform:translateY(10px)}
+  .toast.show{transform:translateY(0)}
+}
+
+/* MODALS SHARED */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(28,24,20,.5);z-index:200;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);box-shadow:var(--shadow-lg);position:relative;overflow-y:auto}
+.modal-title{font-family:'DM Serif Display',serif;font-size:20px;font-weight:400;margin-bottom:20px}
+.form-row{margin-bottom:14px}
+.form-row label{display:block;font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px}
+.form-row input,.form-row select,.form-row textarea{width:100%;border:1.5px solid var(--border);font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);outline:none;transition:border-color .18s}
+.form-row input:focus,.form-row select:focus,.form-row textarea:focus{border-color:var(--teal)}
+.form-row textarea{min-height:70px;resize:vertical}
+.form-2col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;flex-wrap:wrap}
+.btn-ghost{padding:9px 18px;border-radius:8px;border:1.5px solid var(--border);background:none;color:var(--text-muted);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px}
+.btn-primary{padding:9px 20px;border-radius:8px;border:none;background:var(--accent);color:#fff;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600}
+.btn-danger{padding:9px 16px;border-radius:8px;border:1.5px solid var(--red);background:none;color:var(--red);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;margin-right:auto}
+.modal-close{position:absolute;top:16px;right:16px;background:none;border:none;cursor:pointer;font-size:22px;color:var(--text-muted)}
+.notes-section{margin-top:16px}
+.notes-section h4{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);margin-bottom:10px}
+.notes-list{margin-bottom:12px}
+.note-item{padding:10px 12px;border-radius:8px;background:var(--surface2);margin-bottom:8px}
+.note-meta{display:flex;gap:8px;align-items:center;margin-bottom:4px}
+.note-author{font-size:11px;font-weight:600}
+.note-author.erick{color:var(--erick)}.note-author.matt{color:var(--matt)}
+.note-time{font-size:10px;color:var(--text-muted);font-family:'DM Mono',monospace}
+.note-text{font-size:13px;line-height:1.5}
+.note-input-row{display:flex;gap:8px}
+.note-input-row input{flex:1;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;background:var(--bg);outline:none}
+.note-input-row input:focus{border-color:var(--teal)}
+.btn-add-note{padding:10px 14px;border-radius:8px;border:none;background:var(--teal);color:#fff;cursor:pointer;font-size:13px;font-weight:600;white-space:nowrap}
+.toast{position:fixed;left:50%;transform:translateX(-50%) translateY(10px);background:var(--text);color:#fff;padding:11px 20px;border-radius:10px;font-size:13px;font-weight:500;box-shadow:var(--shadow-lg);opacity:0;transition:all .3s;z-index:999;pointer-events:none;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+</style>
+</head>
+<body>
+
+<!-- DESKTOP HEADER -->
+<header class="dsk">
+  <div class="logo">Moving <span>Together</span></div>
+  <div class="hdr-r">
+    <div class="sync-ind" id="syncIndicator" onclick="syncNow()">
+      <div class="sdot offline" id="syncDot"></div>
+      <span id="syncLabel">Offline mode</span>
+    </div>
+    <div class="ubadge" id="userToggle">
+      <div class="av erick" id="headerAvatar" style="width:24px;height:24px"><img src="data:image/jpeg;base64,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" alt="E"></div>
+      <span id="currentUserLabel">Erick</span>
+      <span style="opacity:.5;font-size:10px">&#9660;</span>
+    </div>
+    <button class="addbtn" onclick="openNewTaskModal()">&#xFF0B; New Task</button>
+  </div>
+</header>
+<div class="sban dsk" id="setupBannerDesktop">
+  <div style="font-size:22px;flex-shrink:0">&#128279;</div>
+  <div style="flex:1">
+    <h3>Connect to Google Sheets to sync with Matt</h3>
+    <p>Paste your Apps Script Web App URL below.</p>
+    <div class="sinrow">
+      <input type="text" id="scriptUrlInputDesktop" placeholder="https://script.google.com/macros/s/&hellip;/exec">
+      <button class="bsetup" onclick="saveScriptUrl()">Connect</button>
+      <button class="boffline" onclick="dismissSetup()">Use offline</button>
+    </div>
+  </div>
+</div>
+<nav class="dnav dsk">
+  <button class="tab active" onclick="switchView('kanban',this)">&#9634; Kanban</button>
+  <button class="tab" onclick="switchView('timeline',this)">&#128197; Timeline</button>
+  <button class="tab" onclick="switchView('dashboard',this)">&#128202; Dashboard</button>
+</nav>
+<main class="dmain dsk">
+  <div class="view active" id="view-kanban">
+    <div class="kb-hdr">
+      <h2>Task Board</h2>
+      <div class="fbar">
+        <span style="font-size:12px;color:var(--text-muted)">Filter:</span>
+        <div class="fchip active" onclick="setFilter('all',this)">All</div>
+        <div class="fchip ef" onclick="setFilter('Erick',this)">Erick</div>
+        <div class="fchip mf" onclick="setFilter('Matt',this)">Matt</div>
+        <div class="fchip" onclick="setFilter('Both',this)">Both</div>
+      </div>
+    </div>
+    <div class="kb">
+      <div class="kbc"><div class="kbch"><div class="kbct"><div class="cdot todo"></div>To Do</div><div class="ccount" id="dc-todo">0</div></div><div id="dd-todo"></div></div>
+      <div class="kbc"><div class="kbch"><div class="kbct"><div class="cdot doing"></div>In Progress</div><div class="ccount" id="dc-doing">0</div></div><div id="dd-doing"></div></div>
+      <div class="kbc"><div class="kbch"><div class="kbct"><div class="cdot done"></div>Done</div><div class="ccount" id="dc-done">0</div></div><div id="dd-done"></div></div>
+    </div>
+  </div>
+  <div class="view" id="view-timeline">
+    <div class="tl-hdr"><h2>Timeline</h2><p style="color:var(--text-muted);font-size:13px">Tasks with deadlines. Click to view details.</p></div>
+    <div class="tlwrap"><div class="tlgrid" id="dtl"></div></div>
+  </div>
+  <div class="view" id="view-dashboard">
+    <div class="dh"><h2>Dashboard</h2><p style="color:var(--text-muted);font-size:13px">Shared overview.</p></div>
+    <div class="sgrid" id="dsg"></div>
+    <div class="dbot">
+      <div class="dpanel"><div class="dptitle">&#128100; Workload</div><div id="dwp"></div></div>
+      <div class="dpanel"><div class="dptitle">&#8987; Upcoming</div><div id="dup"></div></div>
+    </div>
+  </div>
+</main>
+
+<!-- MOBILE HEADER -->
+<header class="mob-hdr mob">
+  <div class="mob-logo">Moving <span>Together</span></div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <div class="msdot offline" id="mSyncDot" onclick="syncNow()"></div>
+    <button class="muserbtn" id="mUserToggle">
+      <div class="av erick" id="mHeaderAvatar" style="width:26px;height:26px"><img src="data:image/jpeg;base64,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" alt="E"></div>
+      <span id="mCurrentUser">Erick</span>
+      <span style="opacity:.5;font-size:9px">&#9660;</span>
+    </button>
+  </div>
+</header>
+<div class="msetup mob" id="mSetupBanner">
+  <h3>&#128279; Connect to sync with Matt</h3>
+  <p>Paste your Apps Script URL to keep both of you in sync.</p>
+  <input type="url" id="mScriptUrlInput" placeholder="https://script.google.com/macros/s/&hellip;/exec">
+  <div class="msetup-btns">
+    <button class="bcon" onclick="saveMobileUrl()">Connect</button>
+    <button class="bskip" onclick="dismissSetup()">Skip for now</button>
+  </div>
+</div>
+<div class="mfilters mob" id="mFilters">
+  <div class="mchip active" onclick="setMFilter('all',this)">All</div>
+  <div class="mchip ef" onclick="setMFilter('Erick',this)">Erick</div>
+  <div class="mchip mf" onclick="setMFilter('Matt',this)">Matt</div>
+  <div class="mchip" onclick="setMFilter('Both',this)">Both</div>
+</div>
+<div class="mcontent mob">
+  <div class="mview active" id="mv-kanban"><div id="mKanban"></div></div>
+  <div class="mview" id="mv-timeline">
+    <div style="padding:16px 16px 4px;font-family:'DM Serif Display',serif;font-size:22px;font-weight:400">Timeline</div>
+    <div style="padding:0 16px 12px;font-size:12px;color:var(--text-muted)">Scroll sideways to see all dates</div>
+    <div class="mtl-wrap"><div class="mtl-grid" id="mtl"></div></div>
+  </div>
+  <div class="mview" id="mv-dashboard">
+    <div style="padding:16px">
+      <div style="font-family:'DM Serif Display',serif;font-size:22px;font-weight:400;margin-bottom:16px">Dashboard</div>
+      <div class="mstats" id="mStats"></div>
+      <div class="mpanel"><div class="mpanel-title">&#128100; Workload</div><div id="mWorkload"></div></div>
+      <div class="mpanel"><div class="mpanel-title">&#8987; Upcoming &amp; Overdue</div><div id="mUpcoming"></div></div>
+    </div>
+  </div>
+</div>
+<button class="mfab mob" onclick="openNewTaskModal()">&#xFF0B;</button>
+<nav class="mnav mob">
+  <button class="mnavbtn active" id="mn-kanban" onclick="switchMV('kanban')"><span class="mnavico">&#9634;</span>Board</button>
+  <button class="mnavbtn" id="mn-timeline" onclick="switchMV('timeline')"><span class="mnavico">&#128197;</span>Timeline</button>
+  <button class="mnavbtn" id="mn-dashboard" onclick="switchMV('dashboard')"><span class="mnavico">&#128202;</span>Dashboard</button>
+</nav>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="detailModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <button class="modal-close" onclick="closeModal('detailModal')">&#x2715;</button>
+    <div class="modal-title" id="detailTitle">Task</div>
+    <div class="form-row"><label>Title</label><input type="text" id="detailTitleInput"></div>
+    <div class="form-2col">
+      <div class="form-row"><label>Category</label>
+        <select id="detailCategory"><option>Housing</option><option>Admin &amp; Documents</option><option>Shipping &amp; Moving</option><option>Finance</option><option>Health</option><option>Work &amp; Visas</option><option>Social &amp; Family</option><option>Other</option></select>
+      </div>
+      <div class="form-row"><label>Priority</label>
+        <select id="detailPriority"><option value="high">&#128308; High</option><option value="medium">&#128993; Medium</option><option value="low">&#128308; Low</option></select>
+      </div>
+    </div>
+    <div class="form-2col">
+      <div class="form-row"><label>Assigned To</label>
+        <select id="detailAssignee"><option>Erick</option><option>Matt</option><option>Both</option></select>
+      </div>
+      <div class="form-row"><label>Due Date</label><input type="date" id="detailDue"></div>
+    </div>
+    <div class="form-row"><label>Status</label>
+      <select id="detailStatus"><option value="todo">To Do</option><option value="doing">In Progress</option><option value="done">Done</option></select>
+    </div>
+    <div class="notes-section">
+      <h4>&#128172; Notes &amp; Updates</h4>
+      <div class="notes-list" id="notesList"></div>
+      <div class="note-input-row">
+        <input type="text" id="noteInput" placeholder="Add a note&hellip;" onkeydown="if(event.key==='Enter')addNote()">
+        <button class="btn-add-note" onclick="addNote()">Post</button>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-danger" onclick="deleteTask()">Delete</button>
+      <button class="btn-ghost" onclick="closeModal('detailModal')">Cancel</button>
+      <button class="btn-primary" onclick="saveTask()">Save</button>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay" id="newModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <button class="modal-close" onclick="closeModal('newModal')">&#x2715;</button>
+    <div class="modal-title">New Task</div>
+    <div class="form-row"><label>Title *</label><input type="text" id="newTitle" placeholder="What needs to get done?"></div>
+    <div class="form-2col">
+      <div class="form-row"><label>Category</label>
+        <select id="newCategory"><option>Housing</option><option>Admin &amp; Documents</option><option>Shipping &amp; Moving</option><option>Finance</option><option>Health</option><option>Work &amp; Visas</option><option>Social &amp; Family</option><option>Other</option></select>
+      </div>
+      <div class="form-row"><label>Priority</label>
+        <select id="newPriority"><option value="high">&#128308; High</option><option value="medium">&#128993; Medium</option><option value="low">&#128994; Low</option></select>
+      </div>
+    </div>
+    <div class="form-2col">
+      <div class="form-row"><label>Assigned To</label>
+        <select id="newAssignee"><option>Erick</option><option>Matt</option><option>Both</option></select>
+      </div>
+      <div class="form-row"><label>Due Date</label><input type="date" id="newDue"></div>
+    </div>
+    <div class="form-row"><label>Note (optional)</label><textarea id="newNote" placeholder="Any context&hellip;"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeModal('newModal')">Cancel</button>
+      <button class="btn-primary" onclick="createTask()">Create Task</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+var AVATAR_ERICK = 'data:image/jpeg;base64,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';
+var AVATAR_MATT  = 'data:image/jpeg;base64,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';
+
+function avHTML(who, sz) {
+  sz = sz || 24;
+  var s = 'width:' + sz + 'px;height:' + sz + 'px';
+  if (who === 'Erick') return '<div class="av erick" style="' + s + '"><img src="' + AVATAR_ERICK + '" alt="E"></div>';
+  if (who === 'Matt')  return '<div class="av matt"  style="' + s + '"><img src="' + AVATAR_MATT  + '" alt="M"></div>';
+  return '<div style="display:flex;gap:2px">' +
+    '<div class="av erick" style="' + s + '"><img src="' + AVATAR_ERICK + '" alt="E"></div>' +
+    '<div class="av matt"  style="' + s + '"><img src="' + AVATAR_MATT  + '" alt="M"></div></div>';
+}
+
+// KEY: moveTask button builder — no string nesting, fully safe
+function mtBtn(id, status, label, cls) {
+  cls = cls || '';
+  return '<button class="mbtn' + (cls ? ' ' + cls : '') + '" onclick="event.stopPropagation();moveTask(' + id + ',\'' + status + '\')">' + label + '</button>';
+}
+function dtBtn(id, status, label) {
+  return '<button class="mbtn" onclick="event.stopPropagation();moveTask(' + id + ',\'' + status + '\')">' + label + '</button>';
+}
+
+var LS_KEY    = 'movingTogether_v2';
+var URL_KEY   = 'movingTogether_scriptUrl';
+var SETUP_KEY = 'movingTogether_setupDismissed';
+
+var currentUser    = 'Erick';
+var filterAssignee = 'Erick';
+var editingTaskId  = null;
+var scriptUrl      = localStorage.getItem(URL_KEY) || '';
+var syncTimer      = null;
+var isSyncing      = false;
+
+function offsetDate(d) { var x = new Date(); x.setDate(x.getDate() + d); return x.toISOString().split('T')[0]; }
+
+var SEED = [
+  {id:1,title:'Confirm new address with landlord',category:'Housing',priority:'high',assignee:'Both',status:'doing',due:offsetDate(5),notes:[{author:'Erick',text:'Waiting on lease draft',time:new Date(Date.now()-86400000).toISOString()}],created:new Date().toISOString()},
+  {id:2,title:'Forward mail to new address',category:'Admin & Documents',priority:'medium',assignee:'Matt',status:'todo',due:offsetDate(12),notes:[],created:new Date().toISOString()},
+  {id:3,title:'Book removal company',category:'Shipping & Moving',priority:'high',assignee:'Erick',status:'todo',due:offsetDate(8),notes:[],created:new Date().toISOString()},
+  {id:4,title:'Transfer utilities',category:'Housing',priority:'medium',assignee:'Both',status:'todo',due:offsetDate(20),notes:[],created:new Date().toISOString()},
+  {id:5,title:'Update bank address',category:'Finance',priority:'medium',assignee:'Erick',status:'todo',due:offsetDate(15),notes:[],created:new Date().toISOString()},
+  {id:7,title:'Register new address with GP',category:'Health',priority:'medium',assignee:'Both',status:'todo',due:offsetDate(25),notes:[],created:new Date().toISOString()},
+  {id:8,title:'Pack kitchen and label boxes',category:'Shipping & Moving',priority:'high',assignee:'Both',status:'doing',due:offsetDate(3),notes:[],created:new Date().toISOString()},
+];
+
+function loadLocal() {
+  try { var r = localStorage.getItem(LS_KEY); if (r) return JSON.parse(r); } catch(e) {}
+  return { tasks: JSON.parse(JSON.stringify(SEED)), nextId: 100, deleted: [] };
+}
+function saveLocal() { localStorage.setItem(LS_KEY, JSON.stringify(state)); }
+var state = loadLocal();
+
+function initBanners() {
+  var hide = scriptUrl || localStorage.getItem(SETUP_KEY);
+  var d = document.getElementById('setupBannerDesktop');
+  var m = document.getElementById('mSetupBanner');
+  if (d) d.classList.toggle('hidden', !!hide);
+  if (m) m.classList.toggle('hidden', !!hide);
+}
+
+function saveScriptUrl() {
+  var val = document.getElementById('scriptUrlInputDesktop').value.trim();
+  if (!val || !val.startsWith('https://')) { showToast('Enter a valid URL'); return; }
+  scriptUrl = val; localStorage.setItem(URL_KEY, scriptUrl);
+  document.getElementById('setupBannerDesktop').classList.add('hidden');
+  showToast('Connected! Syncing…'); syncNow();
+}
+function saveMobileUrl() {
+  var val = document.getElementById('mScriptUrlInput').value.trim();
+  if (!val || !val.startsWith('https://')) { showToast('Enter a valid URL'); return; }
+  scriptUrl = val; localStorage.setItem(URL_KEY, scriptUrl);
+  document.getElementById('mSetupBanner').classList.add('hidden');
+  showToast('Connected! Syncing…'); syncNow();
+}
+function dismissSetup() {
+  localStorage.setItem(SETUP_KEY, '1');
+  var d = document.getElementById('setupBannerDesktop');
+  var m = document.getElementById('mSetupBanner');
+  if (d) d.classList.add('hidden');
+  if (m) m.classList.add('hidden');
+  showToast('Running offline.');
+}
+
+function setSyncStatus(status, label) {
+  var d = document.getElementById('syncDot');
+  var m = document.getElementById('mSyncDot');
+  var l = document.getElementById('syncLabel');
+  if (d) d.className = 'sdot ' + status;
+  if (m) m.className = 'msdot ' + status;
+  if (l) l.textContent = label;
+}
+
+function jsonp(url) {
+  return new Promise(function(resolve, reject) {
+    var cb = '_cb_' + Date.now() + '_' + Math.round(Math.random() * 9999);
+    var s  = document.createElement('script');
+    var tm = setTimeout(function() { cleanup(); reject(new Error('Timeout')); }, 15000);
+    function cleanup() { clearTimeout(tm); delete window[cb]; if (s.parentNode) s.parentNode.removeChild(s); }
+    window[cb] = function(data) { cleanup(); resolve(data); };
+    s.onerror  = function() { cleanup(); reject(new Error('Error')); };
+    s.src = url + (url.indexOf('?') > -1 ? '&' : '?') + 'callback=' + cb + '&t=' + Date.now();
+    document.head.appendChild(s);
+  });
+}
+
+async function syncNow() {
+  if (!scriptUrl) { setSyncStatus('offline', 'Offline mode'); return; }
+  if (isSyncing) return;
+  isSyncing = true; setSyncStatus('syncing', 'Syncing…');
+  try {
+    var tasks = state.tasks;
+    var chunkSize = 5;
+    var merged = [], newNextId = state.nextId;
+    for (var i = 0; i < Math.max(1, Math.ceil(tasks.length / chunkSize)); i++) {
+      var chunk  = tasks.slice(i * chunkSize, (i + 1) * chunkSize);
+      var isLast = (i + 1) * chunkSize >= tasks.length;
+      var payload = encodeURIComponent(JSON.stringify({
+        tasks: chunk, nextId: isLast ? state.nextId : 0,
+        final: isLast, reset: i === 0,
+        deleted: i === 0 ? (state.deleted || []) : []
+      }));
+      var data = await jsonp(scriptUrl + '?action=chunk&data=' + payload);
+      if (data.status !== 'ok') throw new Error(data.error || 'Chunk failed');
+      if (isLast) { merged = Array.isArray(data.tasks) ? data.tasks : tasks; newNextId = data.nextId || state.nextId; }
+    }
+    var del = state.deleted || [];
+    state.tasks  = merged.filter(function(t) { return del.indexOf(t.id) === -1; });
+    state.nextId = newNextId;
+    saveLocal();
+    if (!document.querySelector('.modal-overlay.open')) renderAll();
+    var ts = new Date().toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'});
+    setSyncStatus('ok', 'Synced ' + ts);
+  } catch(err) {
+    console.error('Sync error', err);
+    setSyncStatus('error', 'Sync failed — tap to retry');
+    showToast('⚠ Sync failed. Working offline.');
+  } finally { isSyncing = false; }
+}
+
+function triggerSync() {
+  if (!scriptUrl) return;
+  if (syncTimer) clearTimeout(syncTimer);
+  syncTimer = setTimeout(syncNow, 1500);
+}
+
+function updateUserUI() {
+  var isE = currentUser === 'Erick';
+  var img = '<img src="' + (isE ? AVATAR_ERICK : AVATAR_MATT) + '" alt="' + currentUser[0] + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+  var cls = 'av ' + currentUser.toLowerCase();
+  ['headerAvatar','mHeaderAvatar'].forEach(function(id) {
+    var el = document.getElementById(id); if (el) { el.innerHTML = img; el.className = cls; }
+  });
+  ['currentUserLabel','mCurrentUser'].forEach(function(id) {
+    var el = document.getElementById(id); if (el) el.textContent = currentUser;
+  });
+}
+
+function toggleUser() {
+  currentUser = currentUser === 'Erick' ? 'Matt' : 'Erick';
+  filterAssignee = currentUser;
+  updateUserUI(); syncChips();
+  showToast('Switched to ' + currentUser);
+  renderAll();
+}
+
+var ut = document.getElementById('userToggle'); if (ut) ut.addEventListener('click', toggleUser);
+var mu = document.getElementById('mUserToggle'); if (mu) mu.addEventListener('click', toggleUser);
+
+function switchView(name, btn) {
+  document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active'); });
+  document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+  document.getElementById('view-' + name).classList.add('active');
+  btn.classList.add('active');
+  renderAll();
+}
+function switchMV(name) {
+  document.querySelectorAll('.mview').forEach(function(v) { v.classList.remove('active'); });
+  document.querySelectorAll('.mnavbtn').forEach(function(b) { b.classList.remove('active'); });
+  document.getElementById('mv-' + name).classList.add('active');
+  document.getElementById('mn-' + name).classList.add('active');
+  renderAll();
+}
+
+function setFilter(val, el) { filterAssignee = val; syncChips(); renderAll(); }
+function setMFilter(val, el) { filterAssignee = val; syncChips(); renderAll(); }
+
+function syncChips() {
+  document.querySelectorAll('.fchip,.mchip').forEach(function(c) {
+    c.classList.remove('active');
+    var oc = c.getAttribute('onclick') || '';
+    if (filterAssignee === 'all'   && oc.indexOf("'all'")   > -1) c.classList.add('active');
+    if (filterAssignee === 'Erick' && oc.indexOf("'Erick'") > -1) c.classList.add('active');
+    if (filterAssignee === 'Matt'  && oc.indexOf("'Matt'")  > -1) c.classList.add('active');
+    if (filterAssignee === 'Both'  && oc.indexOf("'Both'")  > -1) c.classList.add('active');
+  });
+}
+
+function filteredTasks(status) {
+  return state.tasks.filter(function(t) {
+    if (t.status !== status) return false;
+    if (filterAssignee === 'all') return true;
+    return t.assignee === filterAssignee || t.assignee === 'Both';
+  });
+}
+
+function renderAll() {
+  if (document.querySelector('.modal-overlay.open')) return;
+  renderDKanban(); renderMKanban();
+  renderTimeline();
+  renderDashboard();
+}
+
+function dueInfo(t) {
+  var today = new Date(); today.setHours(0,0,0,0);
+  var due = t.due ? new Date(t.due + 'T00:00:00') : null;
+  var dc = '', ds = '';
+  if (due) {
+    var diff = Math.round((due - today) / 86400000);
+    ds = due.toLocaleDateString('en-GB', {day:'numeric', month:'short'});
+    if (diff < 0) dc = 'overdue'; else if (diff <= 3) dc = 'soon';
+  }
+  return {due: due, dc: dc, ds: ds};
+}
+
+// DESKTOP KANBAN
+function renderDKanban() {
+  ['todo','doing','done'].forEach(function(s) {
+    var tasks = filteredTasks(s);
+    var ct = document.getElementById('dc-' + s);
+    var cn = document.getElementById('dd-' + s);
+    if (!ct || !cn) return;
+    ct.textContent = tasks.length;
+    if (!tasks.length) { cn.innerHTML = '<div class="ecol">No tasks here</div>'; return; }
+    cn.innerHTML = tasks.map(function(t) {
+      var di = dueInfo(t);
+      var nc = (t.notes || []).length;
+      var mbs = '';
+      if (t.status === 'todo') {
+        mbs = '<button class="mbtn" disabled>&#8592; Back</button>' + dtBtn(t.id, 'doing', 'Start &#8594;');
+      } else if (t.status === 'doing') {
+        mbs = dtBtn(t.id, 'todo', '&#8592; Back') + dtBtn(t.id, 'done', 'Done &#10003;');
+      } else {
+        mbs = dtBtn(t.id, 'doing', '&#8592; Reopen') + '<button class="mbtn" disabled>Done</button>';
+      }
+      return '<div class="tcard' + (t.status==='done'?' done':'') + '" onclick="openDetail(' + t.id + ')">' +
+        '<div class="ttop"><div class="ttitle">' + t.title + '</div><div class="pbadge ' + t.priority + '">' + t.priority + '</div></div>' +
+        '<div class="tmeta"><div class="tass">' + avHTML(t.assignee, 18) + ' ' + t.assignee + '</div>' +
+        (di.due ? '<div class="tdue ' + di.dc + '">' + (di.dc==='overdue'?'&#9888; ':'') + di.ds + '</div>' : '') + '</div>' +
+        '<div class="tfoot"><div class="tcat">' + t.category + '</div>' + (nc > 0 ? '<span style="font-size:10px;color:var(--text-muted)">&#128172; ' + nc + '</span>' : '') + '</div>' +
+        '<div class="mbtns">' + mbs + '</div></div>';
+    }).join('');
+  });
+}
+
+// MOBILE KANBAN
+function renderMKanban() {
+  var c = document.getElementById('mKanban'); if (!c) return;
+  var sections = [
+    {status:'doing', label:'In Progress', dot:'doing'},
+    {status:'todo',  label:'To Do',       dot:'todo'},
+    {status:'done',  label:'Done',         dot:'done'}
+  ];
+  var html = '';
+  sections.forEach(function(sec) {
+    var tasks = filteredTasks(sec.status);
+    html += '<div class="msec-hdr"><div class="msec-title"><div class="mdot ' + sec.dot + '"></div>' + sec.label + '</div><div class="msec-cnt">' + tasks.length + '</div></div>';
+    if (!tasks.length) { html += '<div class="mempty">Nothing here</div>'; return; }
+    tasks.forEach(function(t) {
+      var di = dueInfo(t);
+      var nc = (t.notes || []).length;
+      var acts = '';
+      if (t.status === 'todo') {
+        acts = mtBtn(t.id, 'doing', 'Start &#8594;', 'teal');
+      } else if (t.status === 'doing') {
+        acts = mtBtn(t.id, 'todo', '&#8592; Back', '') + mtBtn(t.id, 'done', 'Done &#10003;', 'green');
+      } else {
+        acts = mtBtn(t.id, 'doing', '&#8592; Reopen', '');
+      }
+      html += '<div class="mcard' + (t.status==='done'?' done':'') + '" onclick="openDetail(' + t.id + ')">' +
+        '<div class="mcard-top"><div class="mcard-title">' + t.title + '</div><div class="mbadge ' + t.priority + '">' + t.priority + '</div></div>' +
+        '<div class="mcard-meta"><div class="mass">' + avHTML(t.assignee, 20) + ' ' + t.assignee + '</div>' +
+        (di.due ? '<div class="mdue ' + di.dc + '">' + (di.dc==='overdue'?'&#9888; ':'') + di.ds + '</div>' : '') + '</div>' +
+        '<div class="mcard-tags"><div class="mtag">' + t.category + '</div>' + (nc > 0 ? '<div class="mtag">&#128172; ' + nc + '</div>' : '') + '</div>' +
+        '<div class="mcard-actions">' + acts + '</div></div>';
+    });
+  });
+  c.innerHTML = html;
+}
+
+function moveTask(id, status) {
+  var t = state.tasks.find(function(x) { return x.id === id; }); if (!t) return;
+  t.status = status;
+  if (status === 'done') { t.notes = t.notes || []; t.notes.push({author:currentUser, text:'&#10003; Marked as done.', time:new Date().toISOString()}); }
+  saveLocal(); triggerSync(); renderAll();
+  showToast(status === 'done' ? '&#10003; Task completed!' : 'Task moved.');
+}
+
+// TIMELINE
+function tlData() {
+  var today = new Date(); today.setHours(0,0,0,0);
+  var s = new Date(today); s.setDate(today.getDate() - 7);
+  var e = new Date(today); e.setDate(today.getDate() + 60);
+  var total = (e - s) / 86400000;
+  var pct = function(d) { return Math.max(0, Math.min(100, ((d - s) / 86400000 / total) * 100)); };
+  var months = []; var d = new Date(s);
+  while (d <= e) {
+    var key = d.getFullYear() + '-' + d.getMonth();
+    if (!months.length || months[months.length-1].key !== key)
+      months.push({key: key, label: d.toLocaleDateString('en-GB', {month:'short', year:'2-digit'})});
+    d.setDate(d.getDate() + 1);
+  }
+  return {today:today, pct:pct, months:months, timed:state.tasks.filter(function(t){return t.due;})};
+}
+
+function renderTimeline() {
+  var td = tlData();
+  renderDTL(td); renderMTL(td);
+}
+
+function renderDTL(td) {
+  var g = document.getElementById('dtl'); if (!g) return;
+  if (!td.timed.length) { g.innerHTML = '<div class="tlnone">No tasks have due dates yet.</div>'; return; }
+  var html = '<div class="tlmonths">' + td.months.map(function(m){return '<div class="tlmon">'+m.label+'</div>';}).join('') + '</div>';
+  html += '<div class="tlrows" style="position:relative">';
+  html += '<div class="tl-today" style="left:' + td.pct(td.today) + '%"></div>';
+  html += '<div class="tl-todaylbl" style="left:' + td.pct(td.today) + '%">TODAY</div>';
+  td.timed.forEach(function(t) {
+    var dd = new Date(t.due + 'T00:00:00');
+    var bl = Math.max(0, td.pct(dd) - 6);
+    var bc = t.assignee==='Erick'?'eb':t.assignee==='Matt'?'mb':'bb';
+    html += '<div class="tlrow"><div class="tlrlbl">' + avHTML(t.assignee, 20) + '<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + t.title + '</span></div>' +
+      '<div class="tlrbar"><div class="tlbar ' + bc + (t.status==='done'?' donebar':'') + '" style="left:' + bl + '%;width:8%;min-width:80px;max-width:200px" onclick="openDetail(' + t.id + ')">' +
+      dd.toLocaleDateString('en-GB',{day:'numeric',month:'short'}) + (t.status==='done'?' &#10003;':'') + '</div></div></div>';
+  });
+  html += '</div>'; g.innerHTML = html;
+}
+
+function renderMTL(td) {
+  var g = document.getElementById('mtl'); if (!g) return;
+  if (!td.timed.length) { g.innerHTML = '<div style="padding:40px 16px;text-align:center;color:var(--text-muted);font-style:italic">No tasks with due dates yet.</div>'; return; }
+  var html = '<div class="mtl-months">' + td.months.map(function(m){return '<div class="mtl-mon">'+m.label+'</div>';}).join('') + '</div>';
+  html += '<div class="mtl-rows" style="position:relative">';
+  html += '<div class="mtl-today" style="left:' + td.pct(td.today) + '%"></div>';
+  td.timed.forEach(function(t) {
+    var dd = new Date(t.due + 'T00:00:00');
+    var bl = Math.max(0, td.pct(dd) - 5);
+    var bc = t.assignee==='Erick'?'var(--erick)':t.assignee==='Matt'?'var(--matt)':'var(--amber)';
+    html += '<div class="mtl-row"><div class="mtl-lbl">' + avHTML(t.assignee, 16) + '<span>' + t.title + '</span></div>' +
+      '<div class="mtl-bar-area"><div class="mtl-bar' + (t.status==='done'?' donebar':'') + '" style="left:' + bl + '%;width:10%;min-width:65px;max-width:150px;background:' + bc + '" onclick="openDetail(' + t.id + ')">' +
+      dd.toLocaleDateString('en-GB',{day:'numeric',month:'short'}) + '</div></div></div>';
+  });
+  html += '</div>'; g.innerHTML = html;
+}
+
+// DASHBOARD
+function renderDashboard() {
+  var tasks  = state.tasks;
+  var total  = tasks.length;
+  var done   = tasks.filter(function(t){return t.status==='done';}).length;
+  var todo   = tasks.filter(function(t){return t.status==='todo';}).length;
+  var doing  = tasks.filter(function(t){return t.status==='doing';}).length;
+  var pct    = total > 0 ? Math.round(done / total * 100) : 0;
+  var today  = new Date(); today.setHours(0,0,0,0);
+  var hiP    = tasks.filter(function(t){return t.priority==='high'&&t.status!=='done';}).length;
+  var ovd    = tasks.filter(function(t){return t.status!=='done'&&t.due&&new Date(t.due+'T00:00:00')<today;}).length;
+  var eT     = tasks.filter(function(t){return t.assignee==='Erick'||t.assignee==='Both';}).length;
+  var mT     = tasks.filter(function(t){return t.assignee==='Matt'||t.assignee==='Both';}).length;
+  var eD     = tasks.filter(function(t){return (t.assignee==='Erick'||t.assignee==='Both')&&t.status==='done';}).length;
+  var mD     = tasks.filter(function(t){return (t.assignee==='Matt'||t.assignee==='Both')&&t.status==='done';}).length;
+  var maxW   = Math.max(eT, mT, 1);
+  var up     = tasks.filter(function(t){return t.due&&t.status!=='done';})
+    .map(function(t){return Object.assign({},t,{dObj:new Date(t.due+'T00:00:00')});})
+    .sort(function(a,b){return a.dObj-b.dObj;}).slice(0,8);
+
+  function upItemHTML(t, cls) {
+    var diff = Math.round((t.dObj - today) / 86400000);
+    var ds='', dc='';
+    if (diff<0){ds=Math.abs(diff)+'d overdue';dc='overdue';}
+    else if(diff===0){ds='Today';dc='soon';}
+    else if(diff<=3){ds='In '+diff+'d';dc='soon';}
+    else ds=t.dObj.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+    return '<div class="' + cls + '" onclick="openDetail(' + t.id + ')">' +
+      '<div class="' + (cls==='uitem'?'udate':'mudate') + ' ' + dc + '">' + ds + '</div>' +
+      '<div><div class="' + (cls==='uitem'?'utitle':'mutitle') + '">' + t.title + '</div>' +
+      '<div class="' + (cls==='uitem'?'uwho':'muwho') + '">' + t.assignee + ' &middot; ' + t.category + '</div></div></div>';
+  }
+
+  // Desktop
+  var dsg = document.getElementById('dsg');
+  if (dsg) dsg.innerHTML =
+    '<div class="sc"><div class="slbl">Total</div><div class="sval">' + total + '</div><div class="ssub">' + todo + ' to do &middot; ' + doing + ' in progress</div></div>' +
+    '<div class="sc"><div class="slbl">Done</div><div class="sval" style="color:var(--green)">' + done + '</div><div class="ssub">' + pct + '% complete</div><div class="pbwrap"><div class="pbfill" style="width:' + pct + '%"></div></div></div>' +
+    '<div class="sc"><div class="slbl">High Priority</div><div class="sval" style="color:var(--red)">' + hiP + '</div><div class="ssub">still open</div></div>' +
+    '<div class="sc"><div class="slbl">Overdue</div><div class="sval" style="color:var(--accent)">' + ovd + '</div><div class="ssub">need attention</div></div>';
+  var dwp = document.getElementById('dwp');
+  if (dwp) dwp.innerHTML =
+    '<div class="prow"><div class="pname"><span style="color:var(--erick);font-weight:600">Erick</span></div><div class="pbw"><div class="pb erick" style="width:' + Math.round((eT-eD)/maxW*100) + '%"></div></div><div class="pcnt">' + (eT-eD) + ' open</div></div>' +
+    '<div class="prow"><div class="pname"><span style="color:var(--matt);font-weight:600">Matt</span></div><div class="pbw"><div class="pb matt" style="width:' + Math.round((mT-mD)/maxW*100) + '%"></div></div><div class="pcnt">' + (mT-mD) + ' open</div></div>';
+  var dup = document.getElementById('dup');
+  if (dup) dup.innerHTML = up.length ? up.map(function(t){return upItemHTML(t,'uitem');}).join('') : '<div class="estate">No upcoming deadlines.</div>';
+
+  // Mobile
+  var ms = document.getElementById('mStats');
+  if (ms) ms.innerHTML =
+    '<div class="mstat"><div class="mstat-lbl">Total</div><div class="mstat-val">' + total + '</div><div class="mstat-sub">' + todo + ' to do</div></div>' +
+    '<div class="mstat"><div class="mstat-lbl">Done</div><div class="mstat-val" style="color:var(--green)">' + done + '</div><div class="mstat-sub">' + pct + '%</div><div class="mstat-pb"><div class="mstat-pbf" style="width:' + pct + '%"></div></div></div>' +
+    '<div class="mstat"><div class="mstat-lbl">High Priority</div><div class="mstat-val" style="color:var(--red)">' + hiP + '</div><div class="mstat-sub">open</div></div>' +
+    '<div class="mstat"><div class="mstat-lbl">Overdue</div><div class="mstat-val" style="color:var(--accent)">' + ovd + '</div><div class="mstat-sub">tasks</div></div>';
+  var mw = document.getElementById('mWorkload');
+  if (mw) mw.innerHTML =
+    '<div class="mprow"><div class="mpname"><span style="color:var(--erick);font-weight:600">Erick</span></div><div class="mpbw"><div class="mpb erick" style="width:' + Math.round((eT-eD)/maxW*100) + '%"></div></div><div class="mpcnt">' + (eT-eD) + ' open</div></div>' +
+    '<div class="mprow"><div class="mpname"><span style="color:var(--matt);font-weight:600">Matt</span></div><div class="mpbw"><div class="mpb matt" style="width:' + Math.round((mT-mD)/maxW*100) + '%"></div></div><div class="mpcnt">' + (mT-mD) + ' open</div></div>';
+  var mu2 = document.getElementById('mUpcoming');
+  if (mu2) mu2.innerHTML = up.length ? up.map(function(t){return upItemHTML(t,'muitem');}).join('') : '<div style="color:var(--text-muted);font-size:13px;font-style:italic">No upcoming deadlines.</div>';
+}
+
+// TASK DETAIL
+function openDetail(id) {
+  var t = state.tasks.find(function(x){return x.id===id;}); if (!t) return;
+  editingTaskId = id;
+  document.getElementById('detailTitle').textContent = t.title;
+  document.getElementById('detailTitleInput').value  = t.title;
+  document.getElementById('detailCategory').value    = t.category;
+  document.getElementById('detailPriority').value    = t.priority;
+  document.getElementById('detailAssignee').value    = t.assignee;
+  document.getElementById('detailDue').value         = t.due || '';
+  document.getElementById('detailStatus').value      = t.status;
+  renderNotes(t);
+  document.getElementById('detailModal').classList.add('open');
+}
+
+function renderNotes(t) {
+  var list = document.getElementById('notesList');
+  if (!(t.notes || []).length) { list.innerHTML = '<div style="font-size:12px;color:var(--text-muted);font-style:italic;padding:6px 0">No notes yet.</div>'; return; }
+  list.innerHTML = t.notes.map(function(n) {
+    var cls = n.author === 'Erick' ? 'erick' : 'matt';
+    var ts  = new Date(n.time).toLocaleDateString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+    return '<div class="note-item"><div class="note-meta"><span class="note-author ' + cls + '">' + n.author + '</span><span class="note-time">' + ts + '</span></div><div class="note-text">' + n.text + '</div></div>';
+  }).join('');
+}
+
+function addNote() {
+  var input = document.getElementById('noteInput');
+  var text  = input.value.trim(); if (!text) return;
+  var t = state.tasks.find(function(x){return x.id===editingTaskId;}); if (!t) return;
+  t.notes = t.notes || [];
+  t.notes.push({author:currentUser, text:text, time:new Date().toISOString()});
+  input.value = ''; renderNotes(t); saveLocal(); triggerSync();
+  showToast('Note added');
+}
+
+function saveTask() {
+  var t = state.tasks.find(function(x){return x.id===editingTaskId;}); if (!t) return;
+  t.title    = document.getElementById('detailTitleInput').value.trim() || t.title;
+  t.category = document.getElementById('detailCategory').value;
+  t.priority = document.getElementById('detailPriority').value;
+  t.assignee = document.getElementById('detailAssignee').value;
+  t.due      = document.getElementById('detailDue').value;
+  t.status   = document.getElementById('detailStatus').value;
+  saveLocal(); triggerSync(); closeModal('detailModal'); renderAll();
+  showToast('Task saved &#10003;');
+}
+
+function deleteTask() {
+  if (!confirm('Delete this task?')) return;
+  state.tasks   = state.tasks.filter(function(t){return t.id!==editingTaskId;});
+  state.deleted = state.deleted || [];
+  if (state.deleted.indexOf(editingTaskId) === -1) state.deleted.push(editingTaskId);
+  saveLocal(); triggerSync(); closeModal('detailModal'); renderAll();
+  showToast('Task deleted');
+}
+
+function openNewTaskModal() {
+  document.getElementById('newTitle').value    = '';
+  document.getElementById('newCategory').value = 'Housing';
+  document.getElementById('newPriority').value = 'medium';
+  document.getElementById('newAssignee').value = currentUser;
+  document.getElementById('newDue').value      = '';
+  document.getElementById('newNote').value     = '';
+  document.getElementById('newModal').classList.add('open');
+  setTimeout(function(){document.getElementById('newTitle').focus();}, 300);
+}
+
+function createTask() {
+  var title = document.getElementById('newTitle').value.trim();
+  if (!title) { document.getElementById('newTitle').focus(); return; }
+  var note  = document.getElementById('newNote').value.trim();
+  var task  = {
+    id:       state.nextId++,
+    title:    title,
+    category: document.getElementById('newCategory').value,
+    priority: document.getElementById('newPriority').value,
+    assignee: document.getElementById('newAssignee').value,
+    status:   'todo',
+    due:      document.getElementById('newDue').value,
+    notes:    note ? [{author:currentUser, text:note, time:new Date().toISOString()}] : [],
+    created:  new Date().toISOString()
+  };
+  state.tasks.unshift(task);
+  saveLocal(); triggerSync(); closeModal('newModal'); renderAll();
+  showToast('Task created &#10003;');
+}
+
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(function(el) {
+  el.addEventListener('click', function(e) { if (e.target === el) closeModal(el.id); });
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.open').forEach(function(el){closeModal(el.id);});
+});
+
+var toastTimer;
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.innerHTML = msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){t.classList.remove('show');}, 2400);
+}
+
+// INIT
+initBanners();
+filterAssignee = 'Erick';
+syncChips();
+updateUserUI();
+renderAll();
+if (scriptUrl) { syncNow(); setInterval(syncNow, 30000); }
+</script>
+</body>
+</html>
